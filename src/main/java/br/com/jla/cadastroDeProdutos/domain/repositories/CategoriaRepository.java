@@ -15,4 +15,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria,Long> {
 
     @Override
     Optional<Categoria> findById(Long id);
+
+    @Override
+    boolean existsById(Long id);
 }

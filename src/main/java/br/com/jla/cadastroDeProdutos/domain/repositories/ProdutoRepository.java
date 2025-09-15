@@ -16,4 +16,6 @@ public interface ProdutoRepository extends JpaRepository<Produto,Long> {
     @Override
     Optional<Produto> findById(Long id);
 
+    @Override
+    boolean existsById(Long id);
 }

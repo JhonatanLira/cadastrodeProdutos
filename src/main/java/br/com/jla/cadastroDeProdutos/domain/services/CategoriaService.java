@@ -20,6 +20,10 @@ public class CategoriaService {
         return categoriaRepository.findAll();
     }
 
+    public boolean idExiste(Long id){
+        return categoriaRepository.existsById(id);
+    }
+
     public Optional<Categoria> buscaPorId(Long id) {
         return categoriaRepository.findById(id);
     }
