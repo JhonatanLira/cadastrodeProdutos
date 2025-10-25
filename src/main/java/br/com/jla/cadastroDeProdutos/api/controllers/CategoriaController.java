@@ -1,7 +1,7 @@
 package br.com.jla.cadastroDeProdutos.api.controllers;
 
 import br.com.jla.cadastroDeProdutos.domain.models.Categoria;
-import br.com.jla.cadastroDeProdutos.domain.services.CategoriaService;
+import br.com.jla.cadastroDeProdutos.domain.services.categoria.CategoriaServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -18,47 +19,49 @@ import java.util.List;
 public class CategoriaController {
 
     @Autowired
-    private CategoriaService categoriaService;
+    private CategoriaServiceImpl categoriaService;
 
     @GetMapping
-    public List<Categoria> listaCategoorias() {
-        return categoriaService.listaTodasCategorias();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> buscaPorId(@PathVariable(value = "id") Long id) {
-
-        if (!categoriaService.idExiste(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(categoriaService.buscaPorId(id));
+    public List<Categoria> buscarTodos() {
+        return categoriaService.buscarTodas();
     }
 
     @PostMapping
-    public ResponseEntity<Object> gravaCategoria(@RequestBody @Valid Categoria categoria){
-        if(!categoriaService.idExiste(categoria.getId())){
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria) {
 
-        return ResponseEntity.created().build();
+        Optional<Categoria> categoriaOptional = Optional.of(categoria);
+
+        return categoriaService.salvar(categoriaOptional).map(Categoria -> new ResponseEntity<>(categoria, HttpStatus.CREATED))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Categoria> buscarPorId(@PathVariable(value = "id") Long id) {
+
+        if (categoriaService.buscarPorId(id) == null) {
+
+            return ResponseEntity.notFound().build();//404
+        }
+        return ResponseEntity.ok(categoriaService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> alteraCategoria(@PathVariable(value = "id") Long id, Categoria categoria){
-        if(!categoriaService.idExiste(id)){
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Categoria> atualizar(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        if (categoriaService.buscarPorId(id) == null) {
+            return ResponseEntity.notFound().build();//404
+        }
+        categoriaService.atualizar(id, categoria);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deletaCategoria(@RequestBody Categoria categoria) {
-        if (!categoriaService.idExiste(categoria.getId())) {
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Categoria> remover(@PathVariable Long id) {
 
-        categoriaService.deletaCategoria(categoria);
-        return ResponseEntity.ok().build();
+        if (categoriaService.buscarPorId(id) != null) {
+            categoriaService.remover(id);
+            return ResponseEntity.noContent().build(); //204
+        }
+        return ResponseEntity.notFound().build(); //404
     }
 }

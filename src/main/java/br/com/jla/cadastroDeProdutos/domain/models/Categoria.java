@@ -1,9 +1,9 @@
 package br.com.jla.cadastroDeProdutos.domain.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
@@ -13,8 +13,24 @@ public class Categoria implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull(message = "Campo não pode ser nulo")
+    @NotBlank(message = "Campo não pode ser vazio")
+    @Column(nullable = false, length = 50)
     private String nome;
+
+    @Column(length = 255)
     private String descricao;
+
+    public Categoria() {
+    }
+
+    public Categoria(Long id, String nome, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.descricao = descricao;
+    }
+
 
     public Long getId() {
         return id;
